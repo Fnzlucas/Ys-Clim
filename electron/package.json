@@ -1,0 +1,49 @@
+{
+  "name": "ys-clim",
+  "version": "1.0.0",
+  "description": "YS Clim — Gestion clients",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64",
+    "build-mac": "electron-builder --mac --x64"
+  },
+  "build": {
+    "appId": "com.ysclim.app",
+    "productName": "YS Clim",
+    "icon": "assets/icon.ico",
+    "extraResources": [
+      {
+        "from": "../app",
+        "to": "app"
+      }
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.business"
+    },
+    "dmg": {
+      "title": "YS Clim",
+      "background": null,
+      "window": { "width": 540, "height": 380 }
+    },
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "shortcutName": "YS Clim",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "files": [
+      "main.js",
+      "assets/**"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}

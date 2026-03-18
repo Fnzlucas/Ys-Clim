@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>YS Clim</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#070809;
+  --bg2:#0c0e11;
+  --bg3:#121518;
+  --bg4:#181c21;
+  --bg5:#1f242b;
+  --border:#1a1f26;
+  --border2:#242b34;
+  --border3:#2e3844;
+  --text:#dde3ec;
+  --text2:#8a97a8;
+  --text3:#4a5568;
+  --white:#ffffff;
+  --blue:#3b82f6;
+  --blue2:#2563eb;
+  --blue-dim:rgba(59,130,246,.1);
+  --blue-glow:rgba(59,130,246,.15);
+  --ok:#22c55e;
+  --ok-dim:rgba(34,197,94,.1);
+  --warn:#f59e0b;
+  --warn-dim:rgba(245,158,11,.1);
+  --danger:#ef4444;
+  --danger-dim:rgba(239,68,68,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--bg)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:13px}
+
+/* SIDEBAR */
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
+.logo{padding:24px 20px 18px;border-bottom:1px solid var(--border)}
+.logo-name{font-size:16px;font-weight:700;letter-spacing:-.03em;color:var(--white);display:flex;align-items:center;gap:8px}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-top:4px;padding-left:16px}
+.nav-section{padding:16px 16px 4px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-weight:600}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;cursor:pointer;border-radius:6px;margin:1px 8px;font-size:12px;font-weight:500;color:var(--text3);transition:all .15s}
+.nav-item:hover{background:var(--bg3);color:var(--text2)}
+.nav-item.active{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,.2)}
+.nav-item.active .ni{opacity:1}
+.ni{font-size:13px;width:18px;text-align:center;opacity:.6}
+.sidebar-bottom{margin-top:auto;padding:14px 20px;border-top:1px solid var(--border)}
+.sidebar-user{font-size:11px;font-weight:600;color:var(--text2)}
+.sidebar-date{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{padding:20px 36px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:sticky;top:0;z-index:50}
+.tb-title{font-size:17px;font-weight:700;letter-spacing:-.03em;color:var(--white)}
+.tb-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.content{padding:28px 36px;flex:1}
+
+/* BUTTONS */
+.btn{padding:7px 15px;border-radius:6px;border:1px solid var(--border2);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-ghost{background:transparent;color:var(--text2);border-color:var(--border2)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 0 14px rgba(59,130,246,.25)}
+.btn-primary:hover{background:var(--blue2);box-shadow:0 0 20px rgba(59,130,246,.35)}
+.btn-danger{background:transparent;color:var(--danger);border-color:var(--danger-dim)}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block;animation:pi .18s ease}
+@keyframes pi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px}
+.metric{background:var(--bg2);padding:18px 20px}
+.metric-label{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}
+.metric-value{font-size:26px;font-weight:700;letter-spacing:-.04em;color:var(--white);line-height:1}
+.metric-sub{font-size:10px;color:var(--text3);margin-top:5px}
+.metric-blue .metric-value{color:var(--blue);text-shadow:0 0 20px rgba(59,130,246,.3)}
+
+/* TABLE */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 18px;font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);text-align:left;border-bottom:1px solid var(--border);background:var(--bg3)}
+td{padding:11px 18px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;font-size:12px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(59,130,246,.03)}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.search{flex:1;min-width:180px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:8px 13px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;transition:border-color .15s}
+.search:focus{border-color:var(--blue)}
+.search::placeholder{color:var(--text3)}
+.filter-btn{padding:7px 13px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.filter-btn.active{background:var(--blue-dim);color:var(--blue);border-color:rgba(59,130,246,.3)}
+
+/* BADGES */
+.badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600}
+.badge-ok{color:var(--ok);background:var(--ok-dim)}
+.badge-warn{color:var(--warn);background:var(--warn-dim)}
+.badge-danger{color:var(--danger);background:var(--danger-dim)}
+.badge-blue{color:var(--blue);background:var(--blue-dim)}
+.badge-neutral{color:var(--text3);background:var(--bg4)}
+
+/* PANELS */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.split-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px}
+.panel-title{font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+
+/* CARD GRID */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:20px}
+.client-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .15s}
+.client-card:hover{border-color:rgba(59,130,246,.3);box-shadow:0 0 20px rgba(59,130,246,.05)}
+
+/* FORM */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--blue)}
+.inp::placeholder{color:var(--text3)}
+.inp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:26px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-lg{width:700px}
+.modal-title{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--white);margin-bottom:20px}
+.modal-actions{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-head{font-size:9px;font-weight:600;color:var(--text3);text-align:center;padding:6px 0;letter-spacing:.05em;text-transform:uppercase}
+.cal-day{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px;min-height:72px;cursor:pointer;transition:border-color .15s;position:relative}
+.cal-day:hover{border-color:rgba(59,130,246,.3)}
+.cal-day.today{border-color:var(--blue);background:var(--blue-dim)}
+.cal-day.other-month .cal-day-num{opacity:.25}
+.cal-day-num{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px}
+.cal-event{font-size:9px;padding:2px 5px;border-radius:3px;background:var(--blue-dim);color:var(--blue);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:2px solid var(--blue)}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-nav-title{font-size:14px;font-weight:700;color:var(--white);letter-spacing:-.02em}
+
+/* CHART */
+.chart-bars{display:flex;gap:4px;align-items:flex-end}
+.chart-bw{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.chart-b{width:100%;background:var(--bg4);border-radius:3px;overflow:hidden;display:flex;align-items:flex-end}
+.chart-bf{width:100%;background:var(--blue);opacity:.25;border-radius:2px;transition:height .5s}
+.chart-bf.on{opacity:.8;box-shadow:0 0 8px rgba(59,130,246,.3)}
+.chart-lbl{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-align:center}
+
+/* STAT BAR */
+.stat-bar{height:3px;background:var(--bg4);border-radius:99px;overflow:hidden;margin-top:5px}
+.stat-bar-fill{height:100%;background:var(--blue);opacity:.6;border-radius:99px}
+
+/* KM CALC */
+.km-calc{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid rgba(59,130,246,.15);border-radius:10px;padding:20px;margin-bottom:14px;box-shadow:0 0 30px rgba(59,130,246,.04)}
+
+/* ÉDITEUR DOC */
+.doc-editor{padding:18px;outline:none;font-size:13px;line-height:1.8;overflow-y:auto;background:var(--bg);color:var(--text);min-height:300px}
+.doc-editor *{color:var(--text)!important;background-color:transparent!important}
+
+/* TIMELINE */
+.tl-item{display:flex;gap:10px;margin-bottom:12px;align-items:start}
+.tl-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);box-shadow:0 0 6px rgba(59,130,246,.4);margin-top:4px;flex-shrink:0}
+
+/* SAVE */
+.save-ind{position:fixed;bottom:20px;right:22px;background:var(--bg3);border:1px solid rgba(59,130,246,.3);border-radius:6px;padding:8px 14px;font-size:11px;color:var(--blue);opacity:0;transition:opacity .3s;pointer-events:none;font-family:'DM Mono',monospace;z-index:999;box-shadow:0 0 14px rgba(59,130,246,.1)}
+.save-ind.show{opacity:1}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:99px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-name"><div class="logo-dot"></div>YS CLIM</div>
+    <div class="logo-sub">L'Isle-sur-la-Sorgue · Vaucluse (84)</div>
+  </div>
+  <div class="nav-section">Principal</div>
+  <div class="nav-item active" onclick="goPage('dashboard',this)"><span class="ni">◈</span>Dashboard</div>
+  <div class="nav-item" onclick="goPage('crm',this)"><span class="ni">◎</span>CRM Clients</div>
+  <div class="nav-item" onclick="goPage('calendrier',this)"><span class="ni">◷</span>Calendrier</div>
+  <div class="nav-section">Finance</div>
+  <div class="nav-item" onclick="goPage('devis',this)"><span class="ni">◻</span>Devis & Contrats</div>
+  <div class="nav-item" onclick="goPage('facturation',this)"><span class="ni">◈</span>Facturation</div>
+  <div class="nav-section">Analyse</div>
+  <div class="nav-item" onclick="goPage('historique',this)"><span class="ni">→</span>Historique</div>
+  <div class="nav-item" onclick="goPage('stats',this)"><span class="ni">↗</span>Statistiques</div>
+  <div class="nav-item" onclick="goPage('km',this)"><span class="ni">⬡</span>Coût au km</div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">Yohann Scaringi</div>
+    <div class="sidebar-date" id="sb-date"></div>
+    <button onclick="window.alma&&window.alma.loadPage?window.alma.loadPage('index.html'):null" style="margin-top:10px;width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text3);font-size:11px;font-family:'Inter',sans-serif;cursor:pointer;font-weight:500">← Admin</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="tb-title" id="tb-title">Dashboard</div>
+      <div class="tb-sub" id="tb-sub">Vue d'ensemble · YS Clim</div>
+    </div>
+    <div style="display:flex;gap:8px" id="tb-right"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="metrics">
+        <div class="metric metric-blue"><div class="metric-label">CA total</div><div class="metric-value" id="kpi-ca">0 €</div><div class="metric-sub">interventions + factures</div></div>
+        <div class="metric"><div class="metric-label">Interventions ce mois</div><div class="metric-value" id="kpi-mois">0</div></div>
+        <div class="metric"><div class="metric-label">Clients</div><div class="metric-value" id="kpi-cl">0</div></div>
+        <div class="metric"><div class="metric-label">Factures en attente</div><div class="metric-value" id="kpi-att" style="color:var(--warn)">0 €</div></div>
+      </div>
+      <div class="split">
+        <div class="panel">
+          <div class="panel-title">Prochains rendez-vous</div>
+          <div id="dash-rdv"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Factures en attente</div>
+          <div id="dash-fact"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Activité — 7 derniers jours</div>
+        <div class="chart-bars" id="dash-chart" style="height:70px;margin-top:6px"></div>
+        <div class="chart-bars" id="dash-chart-lbl" style="margin-top:5px"></div>
+      </div>
+    </div>
+
+    <!-- CRM -->
+    <div class="page" id="page-crm">
+      <div class="filters">
+        <input class="search" type="text" id="crm-search" placeholder="Nom, téléphone, ville..." oninput="renderCRM()"/>
+        <button class="filter-btn active" id="crm-f-all" onclick="setCRMF('all')">Tous</button>
+        <button class="filter-btn" id="crm-f-pro" onclick="setCRMF('pro')">Professionnel</button>
+        <button class="filter-btn" id="crm-f-part" onclick="setCRMF('particulier')">Particulier</button>
+        <button class="btn btn-primary" onclick="openClientModal()">+ Client</button>
+      </div>
+      <div class="card-grid" id="crm-grid"></div>
+    </div>
+
+    <!-- CALENDRIER -->
+    <div class="page" id="page-calendrier">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="cal-nav" style="margin:0">
+          <button class="btn btn-ghost" onclick="calNav(-1)">‹</button>
+          <div class="cal-nav-title" id="cal-title" style="margin:0 16px"></div>
+          <button class="btn btn-ghost" onclick="calNav(1)">›</button>
+        </div>
+        <button class="btn btn-primary" onclick="openRDVModal()">+ Rendez-vous</button>
+      </div>
+      <div class="cal-grid" id="cal-heads"></div>
+      <div class="cal-grid" style="margin-top:3px" id="cal-body"></div>
+    </div>
+
+    <!-- DEVIS & CONTRATS -->
+    <div class="page" id="page-devis">
+      <div style="display:grid;grid-template-columns:260px 1fr;gap:14px;height:calc(100vh - 130px)">
+        <div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn btn-ghost" style="flex:1;font-size:11px" onclick="newDoc('devis')">Devis</button>
+            <button class="btn btn-primary" style="flex:1;font-size:11px" onclick="newDoc('contrat')">Contrat</button>
+          </div>
+          <div id="doc-list"></div>
+        </div>
+        <div>
+          <div id="editor-zone" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;height:100%;flex-direction:column">
+            <div style="padding:9px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--bg3)">
+              <input id="doc-title" type="text" placeholder="Titre..." style="flex:1;background:transparent;border:none;outline:none;font-size:13px;font-weight:700;color:var(--white);font-family:'Inter',sans-serif">
+              <select id="doc-type" style="padding:5px 8px;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;color:var(--text2);font-size:11px;outline:none;font-family:'Inter',sans-serif">
+                <option value="devis">Devis</option><option value="contrat">Contrat</option>
+              </select>
+              <input id="doc-montant" type="text" placeholder="Montant €" style="width:88px;padding:5px 8px;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;color:var(--text2);font-size:11px;outline:none">
+              <button class="btn btn-ghost" style="font-size:11px" onclick="previewDoc()">Aperçu</button>
+              <button class="btn btn-primary" style="font-size:11px" onclick="saveDoc()">Sauver</button>
+            </div>
+            <div style="padding:5px 10px;border-bottom:1px solid var(--border);display:flex;gap:4px;background:var(--bg3)">
+              <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px" onclick="document.execCommand('bold')"><b>G</b></button>
+              <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px" onclick="document.execCommand('italic')"><i>I</i></button>
+              <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px" onclick="insDoc('titre')">Titre</button>
+              <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px" onclick="insDoc('sep')">Sépar.</button>
+              <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px" onclick="insDoc('clause')">Clause</button>
+              <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px" onclick="insDoc('tab')">Tableau</button>
+            </div>
+            <div id="doc-editor" contenteditable="true" class="doc-editor" style="flex:1;overflow-y:auto;min-height:300px"></div>
+          </div>
+          <div id="editor-empty" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);flex-direction:column;gap:10px">
+            <div style="font-size:28px;opacity:.2">◻</div>
+            <div style="font-size:12px">Créez ou sélectionnez un document</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FACTURATION -->
+    <div class="page" id="page-facturation">
+      <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric"><div class="metric-label">Total facturé</div><div class="metric-value" id="ft-total">0 €</div></div>
+        <div class="metric metric-blue"><div class="metric-label">Encaissé</div><div class="metric-value" id="ft-enc">0 €</div></div>
+        <div class="metric"><div class="metric-label">En attente</div><div class="metric-value" id="ft-att" style="color:var(--warn)">0 €</div></div>
+      </div>
+      <div class="filters">
+        <input class="search" type="text" id="fact-search" placeholder="Client, numéro..." oninput="renderFact()"/>
+        <button class="filter-btn active" id="fact-f-all" onclick="setFactF('all')">Toutes</button>
+        <button class="filter-btn" id="fact-f-att" onclick="setFactF('attente')">En attente</button>
+        <button class="filter-btn" id="fact-f-pay" onclick="setFactF('payee')">Payées</button>
+        <button class="btn btn-primary" onclick="openFactModal()">+ Facture</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>N° Facture</th><th>Client</th><th>Date</th><th>Échéance</th><th>Montant</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="fact-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- HISTORIQUE -->
+    <div class="page" id="page-historique">
+      <div class="metrics">
+        <div class="metric metric-blue"><div class="metric-label">Interventions totales</div><div class="metric-value" id="hi-nb">0</div></div>
+        <div class="metric"><div class="metric-label">CA interventions</div><div class="metric-value" id="hi-ca">0 €</div></div>
+        <div class="metric"><div class="metric-label">Km parcourus</div><div class="metric-value" id="hi-km">0</div></div>
+        <div class="metric"><div class="metric-label">Panier moyen</div><div class="metric-value" id="hi-moy">0 €</div></div>
+      </div>
+      <div class="filters">
+        <input class="search" type="text" id="hi-search" placeholder="Client, type, ville..." oninput="renderHist()"/>
+        <button class="filter-btn active" id="hi-f-all" onclick="setHistF('all')">Tous</button>
+        <button class="filter-btn" id="hi-f-install" onclick="setHistF('installation')">Installation</button>
+        <button class="filter-btn" id="hi-f-maint" onclick="setHistF('maintenance')">Maintenance</button>
+        <button class="filter-btn" id="hi-f-dep" onclick="setHistF('depannage')">Dépannage</button>
+        <button class="btn btn-primary" onclick="openHistModal()">+ Intervention</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Description</th><th>Km</th><th>Prix</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="hi-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="page" id="page-stats">
+      <div class="metrics">
+        <div class="metric metric-blue"><div class="metric-label">CA global</div><div class="metric-value" id="st-ca">0 €</div></div>
+        <div class="metric"><div class="metric-label">CA ce mois</div><div class="metric-value" id="st-mois">0 €</div></div>
+        <div class="metric"><div class="metric-label">Interventions</div><div class="metric-value" id="st-nb">0</div></div>
+        <div class="metric"><div class="metric-label">Km totaux</div><div class="metric-value" id="st-km">0</div></div>
+      </div>
+      <div class="split">
+        <div class="panel">
+          <div class="panel-title">CA — 12 derniers mois</div>
+          <div class="chart-bars" id="st-chart" style="height:90px;margin-top:6px"></div>
+          <div class="chart-bars" id="st-chart-lbl" style="margin-top:5px"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Top clients</div>
+          <div id="st-top"></div>
+        </div>
+      </div>
+      <div class="split">
+        <div class="panel">
+          <div class="panel-title">Répartition par type</div>
+          <div id="st-types" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Paiements</div>
+          <div id="st-pm" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COUT AU KM -->
+    <div class="page" id="page-km">
+      <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric metric-blue"><div class="metric-label">Coût total véhicule</div><div class="metric-value" id="km-cout-total">0 €</div><div class="metric-sub">sur la période</div></div>
+        <div class="metric"><div class="metric-label">Km parcourus</div><div class="metric-value" id="km-total">0 km</div></div>
+        <div class="metric"><div class="metric-label">Coût réel / km</div><div class="metric-value" id="km-reel" style="color:var(--blue)">0 €</div><div class="metric-sub">vs barème URSSAF</div></div>
+      </div>
+
+      <div class="split">
+        <div>
+          <div class="km-calc">
+            <div class="panel-title" style="margin-bottom:16px">⚙️ Paramètres véhicule</div>
+            <div class="field"><label>Véhicule (marque / modèle)</label><input type="text" class="inp" id="km-veh" placeholder="ex: Peugeot Expert 2022" oninput="calcKm()"></div>
+            <div class="inp-grid">
+              <div class="field"><label>Puissance fiscale (CV)</label>
+                <select class="inp" id="km-cv" onchange="calcKm()">
+                  <option value="3">3 CV et moins</option>
+                  <option value="4">4 CV</option>
+                  <option value="5" selected>5 CV</option>
+                  <option value="6">6 CV</option>
+                  <option value="7">7 CV et plus</option>
+                </select>
+              </div>
+              <div class="field"><label>Km professionnels / an</label><input type="number" class="inp" id="km-annuel" placeholder="15000" oninput="calcKm()"></div>
+            </div>
+            <div class="inp-grid">
+              <div class="field"><label>Carburant (€/L)</label><input type="number" class="inp" id="km-carbu" placeholder="1.90" step="0.01" oninput="calcKm()"></div>
+              <div class="field"><label>Consommation (L/100km)</label><input type="number" class="inp" id="km-conso" placeholder="8" step="0.1" oninput="calcKm()"></div>
+            </div>
+            <div class="inp-grid">
+              <div class="field"><label>Assurance / an (€)</label><input type="number" class="inp" id="km-assurance" placeholder="1200" oninput="calcKm()"></div>
+              <div class="field"><label>Entretien / an (€)</label><input type="number" class="inp" id="km-entretien" placeholder="800" oninput="calcKm()"></div>
+            </div>
+            <div class="inp-grid">
+              <div class="field"><label>Amortissement / an (€)</label><input type="number" class="inp" id="km-amort" placeholder="2500" oninput="calcKm()"></div>
+              <div class="field"><label>Péages / an (€)</label><input type="number" class="inp" id="km-peages" placeholder="200" oninput="calcKm()"></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel" style="margin-bottom:14px">
+            <div class="panel-title">📊 Résultat du calcul</div>
+            <div id="km-result" style="display:flex;flex-direction:column;gap:10px">
+              <div style="text-align:center;color:var(--text3);font-size:12px;padding:20px">Renseignez les paramètres pour calculer</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">📋 Barème URSSAF 2024 (véhicules utilitaires)</div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Indemnités kilométriques déductibles</div>
+            <table style="font-size:11px">
+              <thead><tr><th>Puissance</th><th>jusqu'à 5 000 km</th><th>de 5 001 à 20 000</th><th>au-delà</th></tr></thead>
+              <tbody>
+                <tr><td>3 CV</td><td>d × 0,529</td><td>d × 0,316 + 1 065</td><td>d × 0,370</td></tr>
+                <tr><td>4 CV</td><td>d × 0,606</td><td>d × 0,340 + 1 330</td><td>d × 0,407</td></tr>
+                <tr><td>5 CV</td><td>d × 0,636</td><td>d × 0,357 + 1 395</td><td>d × 0,427</td></tr>
+                <tr><td>6 CV</td><td>d × 0,665</td><td>d × 0,374 + 1 457</td><td>d × 0,447</td></tr>
+                <tr><td>7 CV+</td><td>d × 0,697</td><td>d × 0,394 + 1 515</td><td>d × 0,470</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">📍 Journal des déplacements professionnels</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:14px">
+          <div><label style="display:block;font-size:9px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Date</label><input type="date" class="inp" id="dep-date"></div>
+          <div><label style="display:block;font-size:9px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Client / Destination</label><input type="text" class="inp" id="dep-dest" placeholder="Nom ou lieu"></div>
+          <div><label style="display:block;font-size:9px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Motif</label><input type="text" class="inp" id="dep-motif" placeholder="Installation, SAV..."></div>
+          <div><label style="display:block;font-size:9px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Km aller-retour</label><input type="number" class="inp" id="dep-km" placeholder="45" oninput="calcKm()"></div>
+          <button class="btn btn-primary" onclick="addDep()" style="height:36px">+</button>
+        </div>
+        <div id="dep-list"></div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:11px;color:var(--text3)">Total km enregistrés</div>
+          <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--blue)" id="dep-total-km">0 km</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="save-ind" id="save-ind">Sauvegardé</div>
+
+<!-- MODAL CLIENT -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal">
+    <div class="modal-title" id="cl-modal-title">Nouveau client</div>
+    <input type="hidden" id="cl-idx">
+    <div class="inp-grid">
+      <div class="field"><label>Prénom</label><input class="inp" type="text" id="cl-prenom" placeholder="Jean"></div>
+      <div class="field"><label>Nom</label><input class="inp" type="text" id="cl-nom" placeholder="Dupont"></div>
+    </div>
+    <div class="inp-grid">
+      <div class="field"><label>Téléphone</label><input class="inp" type="tel" id="cl-tel" placeholder="06 12 34 56 78"></div>
+      <div class="field"><label>Email</label><input class="inp" type="email" id="cl-email" placeholder="jean@email.com"></div>
+    </div>
+    <div class="inp-grid">
+      <div class="field"><label>Adresse</label><input class="inp" type="text" id="cl-adresse" placeholder="Adresse complète"></div>
+      <div class="field"><label>Ville</label><input class="inp" type="text" id="cl-ville" placeholder="L'Isle-sur-la-Sorgue"></div>
+    </div>
+    <div class="inp-grid">
+      <div class="field"><label>Type</label>
+        <select class="inp" id="cl-type">
+          <option value="particulier">Particulier</option>
+          <option value="pro">Professionnel</option>
+          <option value="syndic">Syndic</option>
+          <option value="collectivite">Collectivité</option>
+        </select>
+      </div>
+      <div class="field"><label>Équipement</label><input class="inp" type="text" id="cl-equip" placeholder="Clim Daikin, Pompe à chaleur..."></div>
+    </div>
+    <div class="field"><label>Notes</label><input class="inp" type="text" id="cl-notes" placeholder="Accès, code, info utile..."></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('client-modal')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveClient()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RDV -->
+<div class="modal-overlay" id="rdv-modal">
+  <div class="modal">
+    <div class="modal-title" id="rdv-modal-title">Nouveau rendez-vous</div>
+    <input type="hidden" id="rdv-idx">
+    <div class="inp-grid">
+      <div class="field"><label>Date</label><input class="inp" type="date" id="rdv-date"></div>
+      <div class="field"><label>Heure</label><input class="inp" type="time" id="rdv-heure" value="09:00"></div>
+    </div>
+    <div class="field"><label>Client</label><select class="inp" id="rdv-client"><option value="">Sélectionner...</option></select></div>
+    <div class="inp-grid">
+      <div class="field"><label>Type</label>
+        <select class="inp" id="rdv-type">
+          <option value="installation">Installation</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="depannage">Dépannage</option>
+          <option value="devis">Devis / Visite</option>
+        </select>
+      </div>
+      <div class="field"><label>Durée estimée</label>
+        <select class="inp" id="rdv-duree">
+          <option value="1h">1h</option>
+          <option value="2h">2h</option>
+          <option value="demi-journee">Demi-journée</option>
+          <option value="journee">Journée</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Notes</label><textarea class="inp" id="rdv-notes" rows="2" style="resize:none" placeholder="Détails de l'intervention..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('rdv-modal')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveRDV()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTORIQUE -->
+<div class="modal-overlay" id="hist-modal">
+  <div class="modal">
+    <div class="modal-title">Nouvelle intervention</div>
+    <div class="inp-grid">
+      <div class="field"><label>Date</label><input class="inp" type="date" id="hi-date"></div>
+      <div class="field"><label>Client</label><select class="inp" id="hi-client"><option value="">Sélectionner...</option></select></div>
+    </div>
+    <div class="inp-grid">
+      <div class="field"><label>Type</label>
+        <select class="inp" id="hi-type">
+          <option value="installation">Installation</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="depannage">Dépannage</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="field"><label>Km aller-retour</label><input class="inp" type="number" id="hi-km" placeholder="30"></div>
+    </div>
+    <div class="field"><label>Description</label><input class="inp" type="text" id="hi-desc" placeholder="Pose split mural, révision annuelle..."></div>
+    <div class="inp-grid">
+      <div class="field"><label>Prix HT (€)</label><input class="inp" type="number" id="hi-prix" placeholder="350"></div>
+      <div class="field"><label>Paiement</label>
+        <select class="inp" id="hi-pm">
+          <option value="especes">Espèces</option>
+          <option value="cb">Carte bancaire</option>
+          <option value="virement">Virement</option>
+          <option value="cheque">Chèque</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Statut</label>
+      <select class="inp" id="hi-statut">
+        <option value="realise">Réalisé</option>
+        <option value="en-cours">En cours</option>
+        <option value="annule">Annulé</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('hist-modal')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveHist()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FACTURE -->
+<div class="modal-overlay" id="fact-modal">
+  <div class="modal">
+    <div class="modal-title">Nouvelle facture</div>
+    <div class="inp-grid">
+      <div class="field"><label>Client</label><select class="inp" id="fc-client"><option value="">Sélectionner...</option></select></div>
+      <div class="field"><label>Date</label><input class="inp" type="date" id="fc-date"></div>
+    </div>
+    <div class="inp-grid">
+      <div class="field"><label>Montant HT (€)</label><input class="inp" type="number" id="fc-montant" placeholder="450"></div>
+      <div class="field"><label>TVA (%)</label>
+        <select class="inp" id="fc-tva">
+          <option value="20">20%</option>
+          <option value="10">10%</option>
+          <option value="5.5">5.5%</option>
+          <option value="0">0% (exonéré)</option>
+        </select>
+      </div>
+    </div>
+    <div class="inp-grid">
+      <div class="field"><label>Échéance paiement</label><input class="inp" type="date" id="fc-ech"></div>
+      <div class="field"><label>Lié à l'intervention</label><select class="inp" id="fc-intervention"><option value="">— Aucune —</option></select></div>
+    </div>
+    <div class="field"><label>Description</label><textarea class="inp" id="fc-desc" rows="2" style="resize:none" placeholder="Pose climatiseur, maintenance annuelle..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('fact-modal')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveFact()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL APERCU DOC -->
+<div class="modal-overlay" id="prev-modal">
+  <div class="modal modal-lg" style="max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div class="modal-title" id="prev-title" style="margin-bottom:0">Aperçu</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="openSigModal()">Signer</button>
+        <button class="btn btn-ghost" onclick="printDoc()">Imprimer</button>
+        <button class="btn btn-ghost" onclick="closeModal('prev-modal')">✕</button>
+      </div>
+    </div>
+    <div id="prev-content" style="background:#fff;color:#111;padding:44px;border-radius:8px;font-family:Georgia,serif;font-size:13px;line-height:1.9"></div>
+  </div>
+</div>
+
+<!-- MODAL SIGNATURE -->
+<div class="modal-overlay" id="sig-modal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-title">Signature électronique</div>
+    <canvas id="sigCanvas" width="440" height="140" style="background:#fff;border-radius:6px;cursor:crosshair;display:block;margin:0 auto;border:1px solid var(--border2)"></canvas>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-ghost" onclick="clearSig()">Effacer</button>
+      <button class="btn btn-primary" onclick="applySig()">Appliquer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL JOUR CAL -->
+<div class="modal-overlay" id="day-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title" id="day-modal-title">Rendez-vous</div>
+    <div id="day-modal-list"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('day-modal')">Fermer</button>
+      <button class="btn btn-primary" onclick="closeModal('day-modal');openRDVModal()">+ Nouveau RDV</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ══ SUPABASE CONFIG ══
+let sb = null;
+
+function initSupabase(url, key) {
+  sb = supabase.createClient(url, key);
+  localStorage.setItem('ys_sb_url', url);
+  localStorage.setItem('ys_sb_key', key);
+}
+
+// Essayer de charger les clés sauvegardées
+const savedUrl = localStorage.getItem('ys_sb_url');
+const savedKey = localStorage.getItem('ys_sb_key');
+if (savedUrl && savedKey) initSupabase(savedUrl, savedKey);
+
+// ══ ÉCRAN DE CONNEXION ══
+function showLoginScreen() {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div id="sb-login" style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;z-index:99999">
+      <div style="background:#0c0e11;border:1px solid #1a1f26;border-radius:14px;padding:36px;width:380px;text-align:center">
+        <div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-0.5px">YS Clim</div>
+        <div style="font-size:12px;color:#4a5568;margin-bottom:28px">Connexion à votre base de données</div>
+        <div style="text-align:left;margin-bottom:12px">
+          <div style="font-size:11px;color:#8a97a8;margin-bottom:5px">URL Supabase</div>
+          <input id="sb-url-inp" type="text" placeholder="https://xxxx.supabase.co" style="width:100%;background:#121518;border:1px solid #1a1f26;border-radius:8px;padding:9px 12px;font-size:12px;color:#fff;outline:none;font-family:inherit"/>
+        </div>
+        <div style="text-align:left;margin-bottom:20px">
+          <div style="font-size:11px;color:#8a97a8;margin-bottom:5px">Clé API (anon public)</div>
+          <input id="sb-key-inp" type="password" placeholder="eyJhbGci..." style="width:100%;background:#121518;border:1px solid #1a1f26;border-radius:8px;padding:9px 12px;font-size:12px;color:#fff;outline:none;font-family:inherit"/>
+        </div>
+        <button onclick="connectSupabase()" style="width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Se connecter</button>
+        <div id="sb-err" style="font-size:11px;color:#ef4444;margin-top:10px;display:none"></div>
+      </div>
+    </div>`);
+}
+
+async function connectSupabase() {
+  const url = document.getElementById('sb-url-inp').value.trim();
+  const key = document.getElementById('sb-key-inp').value.trim();
+  if (!url || !key) { showErr('Remplissez les deux champs'); return; }
+  initSupabase(url, key);
+  try {
+    const { error } = await sb.from('ys_clients').select('id').limit(1);
+    if (error && error.code !== 'PGRST116' && !error.message.includes('does not exist')) throw error;
+    document.getElementById('sb-login').remove();
+    await load();
+    renderDash();
+  } catch(e) {
+    showErr('Connexion échouée : ' + e.message);
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('sb-err');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+let clients=[],rdvs=[],interventions=[],factures=[],docs=[],deplacements=[];
+let curDoc={idx:null};
+let crmF='all',factF='all',histF='all';
+let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+let sigCtx=null,sigDraw=false,sigPrev={};
+
+// barème URSSAF 2024
+const bareme={
+  '3':{t1:0.529,t2a:0.316,t2b:1065,t3:0.370},
+  '4':{t1:0.606,t2a:0.340,t2b:1330,t3:0.407},
+  '5':{t1:0.636,t2a:0.357,t2b:1395,t3:0.427},
+  '6':{t1:0.665,t2a:0.374,t2b:1457,t3:0.447},
+  '7':{t1:0.697,t2a:0.394,t2b:1515,t3:0.470},
+};
+
+const TABLES={clients:'ys_clients',rdvs:'ys_rdvs',interventions:'ys_interventions',factures:'ys_factures',docs:'ys_docs',deplacements:'ys_deplacements'};
+
+async function load(){
+  if(!sb)return;
+  for(const[varName,table]of Object.entries(TABLES)){
+    try{
+      const{data}=await sb.from(table).select('*').order('created_at',{ascending:true});
+      const arr=(data||[]).map(r=>({...r.data,_id:r.id}));
+      if(varName==='clients')clients=arr;
+      else if(varName==='rdvs')rdvs=arr;
+      else if(varName==='interventions')interventions=arr;
+      else if(varName==='factures')factures=arr;
+      else if(varName==='docs')docs=arr;
+      else if(varName==='deplacements')deplacements=arr;
+    }catch(e){}
+  }
+  updateSelects();
+}
+
+async function sv(k,d){
+  if(!sb)return;
+  try{
+    const table=TABLES[k];
+    await sb.from(table).delete().neq('id','00000000-0000-0000-0000-000000000000');
+    if(d.length>0)await sb.from(table).insert(d.map(item=>{const{_id,...rest}=item;return{data:rest};}));
+    const{data}=await sb.from(table).select('*').order('created_at',{ascending:true});
+    const arr=(data||[]).map(r=>({...r.data,_id:r.id}));
+    if(k==='clients')clients=arr;
+    else if(k==='rdvs')rdvs=arr;
+    else if(k==='interventions')interventions=arr;
+    else if(k==='factures')factures=arr;
+    else if(k==='docs')docs=arr;
+    else if(k==='deplacements')deplacements=arr;
+  }catch(e){console.error('Erreur sv',k,e.message);}
+}
+function showSave(){const e=document.getElementById('save-ind');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+function openModal(id){document.getElementById(id).style.display='flex'}
+function closeModal(id){document.getElementById(id).style.display='none'}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.style.display='none'});
+
+// ══ NAVIGATION ══
+const pageMeta={
+  dashboard:{title:'Dashboard',sub:'Vue d\'ensemble · YS Clim'},
+  crm:{title:'CRM Clients',sub:'Gestion de la clientèle'},
+  calendrier:{title:'Calendrier',sub:'Planification des interventions'},
+  devis:{title:'Devis & Contrats',sub:'Yohann Scaringi · SIREN 999523509'},
+  facturation:{title:'Facturation',sub:'Suivi des paiements'},
+  historique:{title:'Historique Interventions',sub:'Journal de toutes les interventions'},
+  stats:{title:'Statistiques',sub:'Revenus & performances'},
+  km:{title:'Coût au km',sub:'Calcul & journal des déplacements'},
+};
+function goPage(pid,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+pid).classList.add('active');
+  if(el)el.classList.add('active');
+  const t=pageMeta[pid];
+  document.getElementById('tb-title').textContent=t.title;
+  document.getElementById('tb-sub').textContent=t.sub;
+  const fns={dashboard:renderDash,crm:renderCRM,calendrier:renderCal,facturation:renderFact,historique:renderHist,stats:renderStats,km:renderKm,devis:renderDocs};
+  if(fns[pid])fns[pid]();
+}
+
+// ══ SELECTS ══
+function updateSelects(){
+  ['rdv-client','hi-client','fc-client'].forEach(id=>{
+    const s=document.getElementById(id);if(!s)return;
+    const v=s.value;
+    s.innerHTML='<option value="">Sélectionner...</option>'+clients.map((c,i)=>`<option value="${i}">${c.prenom} ${c.nom}</option>`).join('');
+    s.value=v;
+  });
+  const fi=document.getElementById('fc-intervention');
+  if(fi){fi.innerHTML='<option value="">— Aucune —</option>'+interventions.map((iv,i)=>{const cl=clients[iv.client];return`<option value="${i}">${iv.date||''} · ${cl?cl.prenom+' '+cl.nom:'—'}</option>`}).join('')}
+}
+
+// ══ CRM ══
+function setCRMF(f){crmF=f;document.querySelectorAll('[id^=crm-f-]').forEach(b=>b.classList.remove('active'));document.getElementById('crm-f-'+f).classList.add('active');renderCRM()}
+function renderCRM(){
+  const s=document.getElementById('crm-search').value.toLowerCase();
+  const list=clients.filter(c=>{
+    const m=!s||(c.prenom+' '+c.nom+c.tel+c.ville).toLowerCase().includes(s);
+    const f=crmF==='all'||(crmF==='pro'&&(c.type==='pro'||c.type==='syndic'||c.type==='collectivite'))||(crmF==='particulier'&&c.type==='particulier');
+    return m&&f;
+  });
+  const typeLabel={particulier:'Particulier',pro:'Professionnel',syndic:'Syndic',collectivite:'Collectivité'};
+  const typeBadge={particulier:'badge-neutral',pro:'badge-blue',syndic:'badge-ok',collectivite:'badge-warn'};
+  document.getElementById('crm-grid').innerHTML=list.length?list.map(c=>{
+    const i=clients.indexOf(c);
+    const nb=interventions.filter(x=>parseInt(x.client)===i).length;
+    const ca=interventions.filter(x=>parseInt(x.client)===i).reduce((s,x)=>s+(parseFloat(x.prix)||0),0);
+    return `<div class="client-card">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--blue-dim);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--blue)">${(c.prenom[0]||'?').toUpperCase()}</div>
+        <div style="display:flex;gap:5px">
+          <span class="badge ${typeBadge[c.type]||'badge-neutral'}">${typeLabel[c.type]||c.type}</span>
+          <button class="btn btn-ghost" style="padding:3px 7px;font-size:10px" onclick="editClient(${i})">✎</button>
+          <button class="btn btn-ghost" style="padding:3px 7px;font-size:10px;color:var(--danger)" onclick="delClient(${i})">✕</button>
+        </div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--white);letter-spacing:-.02em">${c.prenom} ${c.nom}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">${c.tel||'—'}</div>
+      <div style="font-size:11px;color:var(--text3)">${c.ville||''}</div>
+      ${c.equip?`<div style="font-size:10px;color:var(--blue);margin-top:5px;background:var(--blue-dim);padding:3px 7px;border-radius:4px;display:inline-block">${c.equip}</div>`:''}
+      ${c.notes?`<div style="font-size:11px;color:var(--text3);margin-top:5px;font-style:italic">${c.notes}</div>`:''}
+      <div style="display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+        <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Interventions</div><div style="font-size:15px;font-weight:700;color:var(--white);margin-top:2px">${nb}</div></div>
+        <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">CA total</div><div style="font-size:15px;font-weight:700;color:var(--white);margin-top:2px">${ca.toFixed(0)} €</div></div>
+      </div>
+    </div>`;
+  }).join(''):'<div style="grid-column:1/-1;text-align:center;padding:50px;color:var(--text3);font-size:13px">Aucun client · Cliquez sur + Client</div>';
+}
+function openClientModal(){
+  document.getElementById('cl-idx').value='';
+  document.getElementById('cl-modal-title').textContent='Nouveau client';
+  ['prenom','nom','tel','email','adresse','ville','equip','notes'].forEach(f=>document.getElementById('cl-'+f).value='');
+  document.getElementById('cl-type').value='particulier';
+  openModal('client-modal');
+}
+function editClient(i){
+  const c=clients[i];
+  document.getElementById('cl-idx').value=i;
+  document.getElementById('cl-modal-title').textContent='Modifier client';
+  ['prenom','nom','tel','email','adresse','ville','equip','notes'].forEach(f=>document.getElementById('cl-'+f).value=c[f]||'');
+  document.getElementById('cl-type').value=c.type||'particulier';
+  openModal('client-modal');
+}
+function saveClient(){
+  const idx=document.getElementById('cl-idx').value;
+  const c={prenom:document.getElementById('cl-prenom').value.trim(),nom:document.getElementById('cl-nom').value.trim(),tel:document.getElementById('cl-tel').value.trim(),email:document.getElementById('cl-email').value.trim(),adresse:document.getElementById('cl-adresse').value.trim(),ville:document.getElementById('cl-ville').value.trim(),type:document.getElementById('cl-type').value,equip:document.getElementById('cl-equip').value.trim(),notes:document.getElementById('cl-notes').value.trim()};
+  if(!c.prenom)return;
+  if(idx!==''){clients[parseInt(idx)]=c}else{clients.push(c)}
+  sv('clients',clients);closeModal('client-modal');renderCRM();updateSelects();showSave();
+}
+function delClient(i){if(!confirm('Supprimer ?'))return;clients.splice(i,1);sv('clients',clients);renderCRM();updateSelects()}
+
+// ══ CALENDRIER ══
+function calNav(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++}if(calMonth<0){calMonth=11;calYear--}renderCal()}
+function renderCal(){
+  const months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('cal-title').textContent=months[calMonth]+' '+calYear;
+  const heads=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  document.getElementById('cal-heads').innerHTML=heads.map(h=>`<div class="cal-head">${h}</div>`).join('');
+  const first=new Date(calYear,calMonth,1);
+  const last=new Date(calYear,calMonth+1,0);
+  let startDow=(first.getDay()+6)%7;
+  const today=new Date();
+  const todayStr=today.toISOString().split('T')[0];
+  let cells=[];
+  for(let i=0;i<startDow;i++){const d=new Date(calYear,calMonth,1-startDow+i);cells.push({date:d,other:true})}
+  for(let i=1;i<=last.getDate();i++){cells.push({date:new Date(calYear,calMonth,i),other:false})}
+  while(cells.length%7!==0){const d=new Date(calYear,calMonth+1,cells.length-last.getDate()-startDow+1);cells.push({date:d,other:true})}
+  document.getElementById('cal-body').innerHTML=cells.map(cell=>{
+    const ds=cell.date.toISOString().split('T')[0];
+    const dayRdvs=rdvs.filter(r=>r.date===ds);
+    const isToday=ds===todayStr;
+    return `<div class="cal-day${cell.other?' other-month':''}${isToday?' today':''}" onclick="showDay('${ds}')">
+      <div class="cal-day-num">${cell.date.getDate()}</div>
+      ${dayRdvs.slice(0,2).map(r=>{const cl=clients[r.client];return`<div class="cal-event">${r.heure||''} ${cl?cl.prenom:'—'}</div>`}).join('')}
+      ${dayRdvs.length>2?`<div style="font-size:9px;color:var(--text3)">+${dayRdvs.length-2}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function showDay(ds){
+  const dayRdvs=rdvs.filter(r=>r.date===ds);
+  document.getElementById('day-modal-title').textContent=new Date(ds+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('day-modal-list').innerHTML=dayRdvs.length?dayRdvs.map((r,i)=>{
+    const ri=rdvs.indexOf(r);const cl=clients[r.client];
+    const typeColor={installation:'badge-blue',maintenance:'badge-ok',depannage:'badge-warn',devis:'badge-neutral'};
+    return`<div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:start">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);min-width:40px">${r.heure||'—'}</div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text2)">${cl?cl.prenom+' '+cl.nom:'—'}</div>
+        <div style="display:flex;gap:6px;margin-top:3px"><span class="badge ${typeColor[r.type]||'badge-neutral'}">${r.type}</span><span style="font-size:11px;color:var(--text3)">${r.duree||''}</span></div>
+        ${r.notes?`<div style="font-size:11px;color:var(--text3);margin-top:3px;font-style:italic">${r.notes}</div>`:''}
+      </div>
+      <button class="btn btn-ghost" style="padding:3px 7px;font-size:10px;color:var(--danger)" onclick="delRDV(${ri});showDay('${ds}')">✕</button>
+    </div>`;
+  }).join(''):'<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Aucun rendez-vous ce jour</div>';
+  openModal('day-modal');
+}
+function openRDVModal(ds){
+  document.getElementById('rdv-idx').value='';
+  document.getElementById('rdv-modal-title').textContent='Nouveau rendez-vous';
+  document.getElementById('rdv-date').value=ds||new Date().toISOString().split('T')[0];
+  document.getElementById('rdv-heure').value='09:00';
+  ['rdv-notes'].forEach(id=>document.getElementById(id).value='');
+  updateSelects();openModal('rdv-modal');
+}
+function saveRDV(){
+  const r={date:document.getElementById('rdv-date').value,heure:document.getElementById('rdv-heure').value,client:document.getElementById('rdv-client').value,type:document.getElementById('rdv-type').value,duree:document.getElementById('rdv-duree').value,notes:document.getElementById('rdv-notes').value.trim()};
+  if(!r.date)return;
+  rdvs.push(r);sv('rdvs',rdvs);closeModal('rdv-modal');renderCal();showSave();
+}
+function delRDV(i){rdvs.splice(i,1);sv('rdvs',rdvs);renderCal()}
+
+// ══ HISTORIQUE ══
+function setHistF(f){histF=f;document.querySelectorAll('[id^=hi-f-]').forEach(b=>b.classList.remove('active'));document.getElementById('hi-f-'+f).classList.add('active');renderHist()}
+function renderHist(){
+  const s=document.getElementById('hi-search').value.toLowerCase();
+  const list=interventions.filter(x=>{
+    const cl=clients[x.client];
+    const m=!s||((cl?cl.prenom+' '+cl.nom:'')+x.type+x.desc).toLowerCase().includes(s);
+    return m&&(histF==='all'||x.type===histF);
+  }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const total=interventions.reduce((s,x)=>s+(parseFloat(x.prix)||0),0);
+  const km=interventions.reduce((s,x)=>s+(parseFloat(x.km)||0),0);
+  document.getElementById('hi-nb').textContent=interventions.length;
+  document.getElementById('hi-ca').textContent=total.toFixed(0)+' €';
+  document.getElementById('hi-km').textContent=km.toFixed(0);
+  document.getElementById('hi-moy').textContent=interventions.length?(total/interventions.length).toFixed(0)+' €':'0 €';
+  const typeColor={installation:'badge-blue',maintenance:'badge-ok',depannage:'badge-warn',autre:'badge-neutral'};
+  const statColor={realise:'badge-ok','en-cours':'badge-warn',annule:'badge-danger'};
+  const pmL={especes:'Espèces',cb:'CB',virement:'Virement',cheque:'Chèque'};
+  document.getElementById('hi-tbody').innerHTML=list.length?list.map(x=>{
+    const ri=interventions.indexOf(x);const cl=clients[x.client];
+    return`<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${x.date||'—'}</td>
+      <td style="font-weight:600;color:var(--white)">${cl?cl.prenom+' '+cl.nom:'—'}</td>
+      <td><span class="badge ${typeColor[x.type]||'badge-neutral'}">${x.type}</span></td>
+      <td style="color:var(--text3);font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.desc||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px">${x.km||'—'} km</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--white)">${x.prix||'—'} €</td>
+      <td><span class="badge ${statColor[x.statut]||'badge-neutral'}">${x.statut||'—'}</span></td>
+      <td><button class="btn btn-ghost" style="padding:3px 7px;font-size:10px;color:var(--danger)" onclick="delHist(${ri})">✕</button></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text3)">Aucune intervention</td></tr>';
+}
+function openHistModal(){
+  document.getElementById('hi-date').value=new Date().toISOString().split('T')[0];
+  ['hi-desc','hi-km','hi-prix'].forEach(id=>document.getElementById(id).value='');
+  updateSelects();openModal('hist-modal');
+}
+function saveHist(){
+  const x={date:document.getElementById('hi-date').value,client:document.getElementById('hi-client').value,type:document.getElementById('hi-type').value,km:document.getElementById('hi-km').value,desc:document.getElementById('hi-desc').value.trim(),prix:document.getElementById('hi-prix').value,pm:document.getElementById('hi-pm').value,statut:document.getElementById('hi-statut').value};
+  if(!x.date)return;
+  interventions.push(x);sv('interventions',interventions);closeModal('hist-modal');renderHist();updateSelects();showSave();
+}
+function delHist(i){if(!confirm('Supprimer ?'))return;interventions.splice(i,1);sv('interventions',interventions);renderHist()}
+
+// ══ FACTURATION ══
+function setFactF(f){factF=f;document.querySelectorAll('[id^=fact-f-]').forEach(b=>b.classList.remove('active'));document.getElementById('fact-f-'+f).classList.add('active');renderFact()}
+function renderFact(){
+  const s=document.getElementById('fact-search').value.toLowerCase();
+  const list=factures.filter(f=>{
+    const cl=clients[f.client];
+    const m=!s||((cl?cl.prenom+' '+cl.nom:'')+f.num).toLowerCase().includes(s);
+    return m&&(factF==='all'||f.statut===factF);
+  });
+  const total=factures.reduce((s,f)=>s+(parseFloat(f.ht)||0)*(1+(parseFloat(f.tva)||20)/100),0);
+  const enc=factures.filter(f=>f.statut==='payee').reduce((s,f)=>s+(parseFloat(f.ht)||0)*(1+(parseFloat(f.tva)||20)/100),0);
+  document.getElementById('ft-total').textContent=total.toFixed(0)+' €';
+  document.getElementById('ft-enc').textContent=enc.toFixed(0)+' €';
+  document.getElementById('ft-att').textContent=(total-enc).toFixed(0)+' €';
+  document.getElementById('fact-tbody').innerHTML=list.length?list.map(f=>{
+    const ri=factures.indexOf(f);const cl=clients[f.client];
+    const ttc=((parseFloat(f.ht)||0)*(1+(parseFloat(f.tva)||20)/100)).toFixed(0);
+    return`<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--blue)">${f.num}</td>
+      <td style="font-weight:600;color:var(--white)">${cl?cl.prenom+' '+cl.nom:'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${f.date||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${f.ech||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--white)">${ttc} € TTC</td>
+      <td><span class="badge ${f.statut==='payee'?'badge-ok':'badge-warn'}">${f.statut==='payee'?'Payée':'En attente'}</span></td>
+      <td style="display:flex;gap:5px">
+        ${f.statut!=='payee'?`<button class="btn btn-ghost" style="padding:3px 7px;font-size:10px;color:var(--ok)" onclick="payFact(${ri})">✓</button>`:''}
+        <button class="btn btn-ghost" style="padding:3px 7px;font-size:10px;color:var(--danger)" onclick="delFact(${ri})">✕</button>
+      </td></tr>`;
+  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text3)">Aucune facture</td></tr>';
+}
+function openFactModal(){
+  document.getElementById('fc-date').value=new Date().toISOString().split('T')[0];
+  ['fc-montant','fc-ech','fc-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fc-tva').value='20';
+  updateSelects();openModal('fact-modal');
+}
+function saveFact(){
+  const f={num:'YSC-'+String(factures.length+1).padStart(4,'0'),client:document.getElementById('fc-client').value,date:document.getElementById('fc-date').value,ech:document.getElementById('fc-ech').value,ht:document.getElementById('fc-montant').value,tva:document.getElementById('fc-tva').value,desc:document.getElementById('fc-desc').value.trim(),statut:'attente'};
+  if(!f.ht)return;
+  factures.push(f);sv('factures',factures);closeModal('fact-modal');renderFact();showSave();
+}
+function payFact(i){factures[i].statut='payee';sv('factures',factures);renderFact()}
+function delFact(i){if(!confirm('Supprimer ?'))return;factures.splice(i,1);sv('factures',factures);renderFact()}
+
+// ══ STATS ══
+function renderStats(){
+  const ca=interventions.reduce((s,x)=>s+(parseFloat(x.prix)||0),0);
+  const now=new Date();const ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const mois=interventions.filter(x=>x.date&&x.date.startsWith(ym)).reduce((s,x)=>s+(parseFloat(x.prix)||0),0);
+  const km=interventions.reduce((s,x)=>s+(parseFloat(x.km)||0),0);
+  document.getElementById('st-ca').textContent=ca.toFixed(0)+' €';
+  document.getElementById('st-mois').textContent=mois.toFixed(0)+' €';
+  document.getElementById('st-nb').textContent=interventions.length;
+  document.getElementById('st-km').textContent=km.toFixed(0);
+  const months=[];for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,label:d.toLocaleDateString('fr-FR',{month:'short'})})}
+  const vals=months.map(m=>interventions.filter(x=>x.date&&x.date.startsWith(m.key)).reduce((s,x)=>s+(parseFloat(x.prix)||0),0));
+  const maxV=Math.max(...vals,1);
+  document.getElementById('st-chart').innerHTML=vals.map(v=>`<div class="chart-bw"><div class="chart-b" style="height:90px"><div class="chart-bf${v>0?' on':''}" style="height:${Math.round(v/maxV*100)}%"></div></div></div>`).join('');
+  document.getElementById('st-chart-lbl').innerHTML=months.map(m=>`<div class="chart-bw"><div class="chart-lbl">${m.label}</div></div>`).join('');
+  const topCl=clients.map((c,i)=>({name:c.prenom+' '+c.nom,ca:interventions.filter(x=>parseInt(x.client)===i).reduce((s,x)=>s+(parseFloat(x.prix)||0),0)})).sort((a,b)=>b.ca-a.ca).slice(0,5);
+  const maxCA=Math.max(...topCl.map(c=>c.ca),1);
+  document.getElementById('st-top').innerHTML=topCl.length?topCl.map(c=>`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:var(--text2)">${c.name}</span><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--white)">${c.ca.toFixed(0)} €</span></div><div class="stat-bar"><div class="stat-bar-fill" style="width:${Math.round(c.ca/maxCA*100)}%"></div></div></div>`).join(''):'<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">Aucune donnée</div>';
+  const types={installation:0,maintenance:0,depannage:0,autre:0};
+  interventions.forEach(x=>{if(types[x.type]!==undefined)types[x.type]+=(parseFloat(x.prix)||0)});
+  const maxT=Math.max(...Object.values(types),1);
+  const typeLabel={installation:'Installation',maintenance:'Maintenance',depannage:'Dépannage',autre:'Autre'};
+  document.getElementById('st-types').innerHTML=Object.entries(types).map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:var(--text2)">${typeLabel[k]}</span><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--white)">${v.toFixed(0)} €</span></div><div class="stat-bar"><div class="stat-bar-fill" style="width:${Math.round(v/maxT*100)}%"></div></div></div>`).join('');
+  const pm={especes:0,cb:0,virement:0,cheque:0};
+  interventions.forEach(x=>{if(pm[x.pm]!==undefined)pm[x.pm]+=(parseFloat(x.prix)||0)});
+  const maxP=Math.max(...Object.values(pm),1);
+  const pmL={especes:'Espèces',cb:'CB',virement:'Virement',cheque:'Chèque'};
+  document.getElementById('st-pm').innerHTML=Object.entries(pm).map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:var(--text2)">${pmL[k]}</span><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--white)">${v.toFixed(0)} €</span></div><div class="stat-bar"><div class="stat-bar-fill" style="width:${Math.round(v/maxP*100)}%"></div></div></div>`).join('');
+}
+
+// ══ COÛT AU KM ══
+function calcKm(){
+  const km=parseFloat(document.getElementById('km-annuel').value)||0;
+  const carbu=parseFloat(document.getElementById('km-carbu').value)||0;
+  const conso=parseFloat(document.getElementById('km-conso').value)||0;
+  const assu=parseFloat(document.getElementById('km-assurance').value)||0;
+  const ent=parseFloat(document.getElementById('km-entretien').value)||0;
+  const amort=parseFloat(document.getElementById('km-amort').value)||0;
+  const peage=parseFloat(document.getElementById('km-peages').value)||0;
+  const cv=document.getElementById('km-cv').value;
+  if(!km){document.getElementById('km-total').textContent='0 km';return}
+  const coutCarbu=(conso/100)*carbu*km;
+  const coutTotal=coutCarbu+assu+ent+amort+peage;
+  const coutKm=km>0?coutTotal/km:0;
+  document.getElementById('km-cout-total').textContent=coutTotal.toFixed(0)+' €';
+  document.getElementById('km-total').textContent=km.toLocaleString('fr-FR')+' km';
+  document.getElementById('km-reel').textContent=coutKm.toFixed(3)+' €/km';
+  // Barème URSSAF
+  const b=bareme[cv];
+  let urssaf=0;
+  if(km<=5000)urssaf=km*b.t1;
+  else if(km<=20000)urssaf=km*b.t2a+b.t2b;
+  else urssaf=km*b.t3;
+  const diff=urssaf-coutTotal;
+  document.getElementById('km-result').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:13px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Coût carburant</div>
+        <div style="font-size:16px;font-weight:700;color:var(--white)">${coutCarbu.toFixed(0)} €</div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:13px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Coût total véhicule</div>
+        <div style="font-size:16px;font-weight:700;color:var(--white)">${coutTotal.toFixed(0)} €</div>
+      </div>
+      <div style="background:var(--blue-dim);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:13px">
+        <div style="font-size:9px;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Coût réel / km</div>
+        <div style="font-size:20px;font-weight:700;color:var(--blue)">${coutKm.toFixed(3)} €</div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:13px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Barème URSSAF (${cv} CV)</div>
+        <div style="font-size:16px;font-weight:700;color:var(--white)">${urssaf.toFixed(0)} €</div>
+      </div>
+    </div>
+    <div style="background:${diff>=0?'var(--ok-dim)':'var(--danger-dim)'};border:1px solid ${diff>=0?'rgba(34,197,94,.2)':'rgba(239,68,68,.2)'};border-radius:8px;padding:13px;margin-top:4px">
+      <div style="font-size:9px;color:${diff>=0?'var(--ok)':'var(--danger)'};text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">
+        ${diff>=0?'✓ Économie vs barème URSSAF':'⚠ Surcoût vs barème URSSAF'}
+      </div>
+      <div style="font-size:15px;font-weight:700;color:${diff>=0?'var(--ok)':'var(--danger)'}">
+        ${diff>=0?'+':''}${diff.toFixed(0)} €
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">
+        ${diff>=0?'Vous pouvez déduire '+urssaf.toFixed(0)+' € (barème) au lieu de '+coutTotal.toFixed(0)+' € réels':'Vos frais réels dépassent le barème URSSAF — optez pour les frais réels'}
+      </div>
+    </div>
+  `;
+  renderDepList();
+}
+function addDep(){
+  const d={date:document.getElementById('dep-date').value,dest:document.getElementById('dep-dest').value.trim(),motif:document.getElementById('dep-motif').value.trim(),km:document.getElementById('dep-km').value};
+  if(!d.km||!d.dest)return;
+  deplacements.unshift(d);sv('deplacements',deplacements);
+  document.getElementById('dep-dest').value='';document.getElementById('dep-motif').value='';document.getElementById('dep-km').value='';
+  renderDepList();calcKm();showSave();
+}
+function renderDepList(){
+  const totalKm=deplacements.reduce((s,d)=>s+(parseFloat(d.km)||0),0);
+  document.getElementById('dep-total-km').textContent=totalKm.toFixed(0)+' km';
+  document.getElementById('dep-list').innerHTML=deplacements.slice(0,8).map((d,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <span style="font-family:'DM Mono',monospace;color:var(--text3);font-size:11px;min-width:80px">${d.date||'—'}</span>
+      <span style="font-weight:600;color:var(--text2);flex:1">${d.dest}</span>
+      <span style="color:var(--text3);font-size:11px">${d.motif||'—'}</span>
+      <span style="font-family:'DM Mono',monospace;color:var(--blue);font-weight:700">${d.km} km</span>
+      <button class="btn btn-ghost" style="padding:2px 6px;font-size:10px;color:var(--danger)" onclick="delDep(${i})">✕</button>
+    </div>`).join('')||'<div style="color:var(--text3);font-size:12px;text-align:center;padding:14px">Aucun déplacement enregistré</div>';
+}
+function delDep(i){deplacements.splice(i,1);sv('deplacements',deplacements);renderDepList();calcKm()}
+function renderKm(){renderDepList();calcKm()}
+
+// ══ DEVIS & CONTRATS ══
+function renderDocs(){
+  document.getElementById('doc-list').innerHTML=docs.length?docs.map((d,i)=>{
+    const sig=d.sig?'<span class="badge badge-ok" style="font-size:9px">Signé</span>':'';
+    const type=d.type==='contrat'?'<span class="badge badge-blue" style="font-size:9px">Contrat</span>':'<span class="badge badge-neutral" style="font-size:9px">Devis</span>';
+    return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(59,130,246,.3)'" onmouseout="this.style.borderColor='var(--border)'" onclick="loadDoc(${i})">
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+        <span style="font-size:12px;font-weight:600;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.title||'Sans titre'}</span>${type}${sig}
+      </div>
+      <div style="font-size:10px;color:var(--text3)">${d.montant?d.montant+' € · ':''}${new Date(d.date).toLocaleDateString('fr-FR')}</div>
+    </div>`;
+  }).join(''):'<div style="text-align:center;padding:28px;color:var(--text3);font-size:12px">Aucun document</div>';
+}
+function newDoc(type){
+  const today=new Date().toLocaleDateString('fr-FR');
+  const n=String(docs.length+1).padStart(4,'0');
+  curDoc={idx:null,type,title:type==='contrat'?'Nouveau contrat':'Nouveau devis',montant:'',date:new Date().toISOString(),content:getTemplate(type,n,today),sig:null};
+  showEditor();
+}
+function loadDoc(i){curDoc={...docs[i],idx:i};showEditor()}
+function showEditor(){
+  document.getElementById('editor-empty').style.display='none';
+  const ez=document.getElementById('editor-zone');ez.style.display='flex';ez.style.flexDirection='column';
+  document.getElementById('doc-title').value=curDoc.title||'';
+  document.getElementById('doc-type').value=curDoc.type||'devis';
+  document.getElementById('doc-montant').value=curDoc.montant||'';
+  document.getElementById('doc-editor').innerHTML=curDoc.content||'';
+}
+function saveDoc(){
+  curDoc.title=document.getElementById('doc-title').value||'Sans titre';
+  curDoc.type=document.getElementById('doc-type').value;
+  curDoc.montant=document.getElementById('doc-montant').value;
+  curDoc.content=document.getElementById('doc-editor').innerHTML;
+  if(curDoc.idx!==null){docs[curDoc.idx]={...curDoc}}else{curDoc.idx=docs.length;docs.push({...curDoc})}
+  sv('docs',docs);renderDocs();showSave();
+}
+function previewDoc(){
+  curDoc.title=document.getElementById('doc-title').value||'Sans titre';
+  curDoc.type=document.getElementById('doc-type').value;
+  curDoc.montant=document.getElementById('doc-montant').value;
+  curDoc.content=document.getElementById('doc-editor').innerHTML;
+  const today=new Date().toLocaleDateString('fr-FR');
+  document.getElementById('prev-title').textContent=curDoc.title;
+  document.getElementById('prev-content').innerHTML=`
+    <div style="display:flex;justify-content:space-between;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #1a6fd4">
+      <div><div style="font-size:20px;font-weight:800;color:#1a6fd4;letter-spacing:-.02em">YS CLIM</div><div style="font-size:11px;color:#555;margin-top:3px">Yohann Scaringi · SIREN 999523509<br>L'Isle-sur-la-Sorgue (84)</div></div>
+      <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:#111">${curDoc.title}</div><div style="font-size:11px;color:#666;margin-top:3px">${today}</div>${curDoc.montant?`<div style="font-size:15px;font-weight:800;color:#1a6fd4;margin-top:5px">${curDoc.montant} €</div>`:''}</div>
+    </div>
+    <div style="color:#111">${curDoc.content||''}</div>
+    ${curDoc.sig?`<div style="margin-top:28px;padding-top:14px;border-top:1px solid #ddd"><div style="font-size:11px;color:#888;margin-bottom:5px">Signature électronique — ${today}</div><img src="${curDoc.sig}" style="max-height:65px"></div>`:''}
+  `;
+  openModal('prev-modal');
+}
+function printDoc(){
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>'+curDoc.title+'</title><style>body{font-family:Georgia,serif;padding:44px;color:#111;font-size:13px;line-height:1.9}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px 11px}th{background:#f0f0f0}</style></head><body>'+document.getElementById('prev-content').innerHTML+'</body></html>');
+  w.document.close();w.print();
+}
+function insDoc(t){
+  const m={titre:'<h3 style="margin:14px 0 6px;color:#1a6fd4">Titre de section</h3>',sep:'<hr style="border:none;border-top:1px solid #ccc;margin:16px 0">',clause:'<p><strong>Article X —</strong> Rédigez votre clause ici.</p>',tab:'<table style="width:100%;border-collapse:collapse;margin:12px 0"><tr><th style="border:1px solid #ccc;padding:7px;background:#f5f5f5">Désignation</th><th style="border:1px solid #ccc;padding:7px;background:#f5f5f5">Qté</th><th style="border:1px solid #ccc;padding:7px;background:#f5f5f5">P.U.HT€</th><th style="border:1px solid #ccc;padding:7px;background:#f5f5f5">Total€</th></tr><tr><td style="border:1px solid #ccc;padding:7px">Climatiseur split mural</td><td style="border:1px solid #ccc;padding:7px">1</td><td style="border:1px solid #ccc;padding:7px"></td><td style="border:1px solid #ccc;padding:7px"></td></tr></table>'};
+  document.getElementById('doc-editor').focus();document.execCommand('insertHTML',false,m[t]);
+}
+function getTemplate(type,n,today){
+  const base=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:16px"><div><p style="font-size:10px;color:#777;text-transform:uppercase;margin-bottom:7px">${type==='contrat'?'Le Prestataire':'Émetteur'}</p><p><strong>Yohann Scaringi</strong><br>YS Clim · L'Isle-sur-la-Sorgue (84)<br>SIREN : 999523509</p></div><div><p style="font-size:10px;color:#777;text-transform:uppercase;margin-bottom:7px">${type==='contrat'?'Le Client':'Destinataire'}</p><p><strong>[Nom / Raison sociale]</strong><br>[Adresse]<br>[Téléphone / Email]</p></div></div>`;
+  if(type==='contrat')return`<h2 style="margin-bottom:4px">CONTRAT DE MAINTENANCE CLIMATISATION</h2><p style="font-size:11px;color:#777;margin-bottom:14px">Réf : YSC-CTR-${n} · ${today}</p><hr style="border:none;border-top:1px solid #ddd;margin:14px 0">${base}<hr style="border:none;border-top:1px solid #ddd;margin:14px 0"><h3 style="margin:14px 0 7px">Article 1 — Objet</h3><p>Le présent contrat a pour objet la réalisation de prestations d'installation, maintenance et dépannage de systèmes de climatisation par le Prestataire.</p><h3 style="margin:14px 0 7px">Article 2 — Durée</h3><p>Le présent contrat prend effet à la date de signature pour une durée de [DURÉE].</p><h3 style="margin:14px 0 7px">Article 3 — Tarifs & Paiement</h3><p>Montant : <strong>[MONTANT] €</strong> HT. TVA en vigueur applicable.<br>Pénalités de retard art. L.441-10 C. commerce. Indemnité forfaitaire : 40 € (art. D.441-5).</p><h3 style="margin:14px 0 7px">Article 4 — Obligations du prestataire</h3><p>Réaliser les prestations dans les règles de l'art, avec du matériel certifié. Respect des normes F-Gas.</p><h3 style="margin:14px 0 7px">Article 5 — Obligations du client</h3><p>Permettre l'accès aux installations. Signaler toute anomalie dans les 48h.</p><h3 style="margin:14px 0 7px">Article 6 — Garantie</h3><p>Garantie main d'œuvre : [DURÉE]. Garantie pièces selon fabricant.</p><h3 style="margin:14px 0 7px">Article 7 — Droit applicable</h3><p>Droit français. Tribunal compétent de Nîmes.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:34px;padding-top:16px;border-top:1px solid #ddd"><div><p style="font-size:11px;color:#777">Le Prestataire</p><div style="height:60px;border-bottom:1px solid #999;margin:14px 0 5px"></div><p style="font-size:11px;color:#777">Yohann Scaringi · ${today}</p></div><div><p style="font-size:11px;color:#777">Le Client — Lu et approuvé</p><div style="height:60px;border-bottom:1px solid #999;margin:14px 0 5px"></div><p style="font-size:11px;color:#777">[Nom] · [Date]</p></div></div><p style="font-size:10px;color:#888;text-align:center;margin-top:14px;padding-top:10px;border-top:1px solid #eee">TVA applicable selon taux en vigueur · SIREN 999523509 · YS Clim · Yohann Scaringi</p>`;
+  return`<h2 style="margin-bottom:4px">DEVIS CLIMATISATION</h2><p style="font-size:11px;color:#777;margin-bottom:14px">N° YSC-${n} · ${today} · Valable 30 jours</p><hr style="border:none;border-top:1px solid #ddd;margin:14px 0">${base}<table style="width:100%;border-collapse:collapse;margin:14px 0"><tr style="background:#f0f5ff"><th style="padding:9px 11px;text-align:left;border:1px solid #ddd">DÉSIGNATION</th><th style="padding:9px 11px;text-align:center;border:1px solid #ddd">QTÉ</th><th style="padding:9px 11px;text-align:right;border:1px solid #ddd">P.U. HT €</th><th style="padding:9px 11px;text-align:right;border:1px solid #ddd">TOTAL HT €</th></tr><tr><td style="padding:9px 11px;border:1px solid #ddd">[Prestation / Fourniture]</td><td style="padding:9px 11px;text-align:center;border:1px solid #ddd">1</td><td style="padding:9px 11px;text-align:right;border:1px solid #ddd"></td><td style="padding:9px 11px;text-align:right;border:1px solid #ddd"></td></tr><tr><td style="padding:9px 11px;border:1px solid #ddd;color:#666">Main d'œuvre</td><td style="padding:9px 11px;text-align:center;border:1px solid #ddd">1</td><td style="padding:9px 11px;text-align:right;border:1px solid #ddd"></td><td style="padding:9px 11px;text-align:right;border:1px solid #ddd"></td></tr><tr style="font-weight:700;background:#f0f5ff"><td colspan="3" style="padding:9px 11px;border:1px solid #ddd;text-align:right">TOTAL HT</td><td style="padding:9px 11px;border:1px solid #ddd;text-align:right">[MONTANT] €</td></tr><tr><td colspan="3" style="padding:9px 11px;border:1px solid #ddd;text-align:right;color:#666">TVA 20%</td><td style="padding:9px 11px;border:1px solid #ddd;text-align:right;color:#666"></td></tr><tr style="font-weight:700"><td colspan="3" style="padding:9px 11px;border:1px solid #ddd;text-align:right">TOTAL TTC</td><td style="padding:9px 11px;border:1px solid #ddd;text-align:right"></td></tr></table><p style="font-size:11px;color:#777;margin:10px 0">Pénalités de retard au taux BCE +10 pts + indemnité 40 € (art. D.441-5) · Certification RGE / Qualibat selon travaux</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:28px;padding-top:16px;border-top:1px solid #ddd"><div><p style="font-size:11px;color:#777">Bon pour accord — Le Client</p><div style="height:60px;border-bottom:1px solid #999;margin:14px 0 5px"></div><p style="font-size:11px;color:#777">[Nom] · [Date]</p></div><div><p style="font-size:11px;color:#777">Le Prestataire</p><div style="height:60px;border-bottom:1px solid #999;margin:14px 0 5px"></div><p style="font-size:11px;color:#777">Yohann Scaringi · ${today}</p></div></div><p style="font-size:10px;color:#888;text-align:center;margin-top:12px;padding-top:10px;border-top:1px solid #eee">SIREN 999523509 · YS Clim · L'Isle-sur-la-Sorgue (84)</p>`;
+}
+
+// ══ SIGNATURE ══
+function openSigModal(){
+  openModal('sig-modal');
+  setTimeout(()=>{
+    const cv=document.getElementById('sigCanvas');
+    sigCtx=cv.getContext('2d');sigCtx.clearRect(0,0,cv.width,cv.height);
+    sigCtx.strokeStyle='#111';sigCtx.lineWidth=2.5;sigCtx.lineCap='round';sigCtx.lineJoin='round';
+    const gp=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+    cv.onmousedown=e=>{sigDraw=true;sigPrev=gp(e)};
+    cv.onmousemove=e=>{if(!sigDraw)return;const p=gp(e);sigCtx.beginPath();sigCtx.moveTo(sigPrev.x,sigPrev.y);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigPrev=p};
+    cv.onmouseup=cv.onmouseleave=()=>sigDraw=false;
+  },80);
+}
+function clearSig(){if(sigCtx)sigCtx.clearRect(0,0,440,140)}
+function applySig(){
+  curDoc.sig=document.getElementById('sigCanvas').toDataURL();
+  if(curDoc.idx!==null){docs[curDoc.idx].sig=curDoc.sig;sv('docs',docs);renderDocs()}
+  closeModal('sig-modal');setTimeout(previewDoc,80);
+}
+
+// ══ DASHBOARD ══
+function renderDash(){
+  const ca=interventions.reduce((s,x)=>s+(parseFloat(x.prix)||0),0);
+  const now=new Date();const ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const mois=interventions.filter(x=>x.date&&x.date.startsWith(ym)).length;
+  const pending=factures.filter(f=>f.statut==='attente');
+  const pendingCA=pending.reduce((s,f)=>s+(parseFloat(f.ht)||0)*(1+(parseFloat(f.tva)||20)/100),0);
+  const upcoming=rdvs.filter(r=>new Date(r.date+'T'+r.heure)>=now).sort((a,b)=>new Date(a.date+'T'+a.heure)-new Date(b.date+'T'+b.heure));
+  document.getElementById('kpi-ca').textContent=ca.toFixed(0)+' €';
+  document.getElementById('kpi-mois').textContent=mois;
+  document.getElementById('kpi-cl').textContent=clients.length;
+  document.getElementById('kpi-att').textContent=pendingCA.toFixed(0)+' €';
+  document.getElementById('dash-rdv').innerHTML=upcoming.slice(0,4).map(r=>{
+    const cl=clients[r.client];
+    const typeColor={installation:'var(--blue)',maintenance:'var(--ok)',depannage:'var(--warn)',devis:'var(--text3)'};
+    return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="width:3px;height:36px;border-radius:99px;background:${typeColor[r.type]||'var(--text3)'};flex-shrink:0"></div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text2)">${cl?cl.prenom+' '+cl.nom:'—'}</div><div style="font-size:10px;color:var(--text3)">${r.date} ${r.heure} · ${r.type}</div></div>
+    </div>`;
+  }).join('')||'<div style="color:var(--text3);font-size:12px;text-align:center;padding:22px">Aucun RDV à venir</div>';
+  document.getElementById('dash-fact').innerHTML=pending.slice(0,4).map(f=>{
+    const cl=clients[f.client];const ttc=((parseFloat(f.ht)||0)*(1+(parseFloat(f.tva)||20)/100)).toFixed(0);
+    return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text2)">${cl?cl.prenom+' '+cl.nom:'—'}</div><div style="font-size:10px;color:var(--text3)">${f.num} · Échéance ${f.ech||'—'}</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--warn);font-weight:700">${ttc} €</div>
+    </div>`;
+  }).join('')||'<div style="color:var(--text3);font-size:12px;text-align:center;padding:22px">Aucune facture en attente</div>';
+  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push({key:d.toISOString().split('T')[0],label:d.toLocaleDateString('fr-FR',{weekday:'short'})})}
+  const vals=days.map(d=>interventions.filter(x=>x.date===d.key).reduce((s,x)=>s+(parseFloat(x.prix)||0),0));
+  const maxV=Math.max(...vals,1);
+  document.getElementById('dash-chart').innerHTML=vals.map(v=>`<div class="chart-bw"><div class="chart-b" style="height:70px"><div class="chart-bf${v>0?' on':''}" style="height:${Math.round(v/maxV*100)}%"></div></div></div>`).join('');
+  document.getElementById('dash-chart-lbl').innerHTML=days.map(d=>`<div class="chart-bw"><div class="chart-lbl">${d.label}</div></div>`).join('');
+}
+
+// ══ INIT ══
+document.addEventListener('DOMContentLoaded', async ()=>{
+  if(sb){
+    await load();
+    updateSelects();
+    renderDash();
+    renderDepList();
+  } else {
+    showLoginScreen();
+  }
+});
+  document.getElementById('sb-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  calYear=new Date().getFullYear();calMonth=new Date().getMonth();
+});
+</script>
+</body>
+</html>
